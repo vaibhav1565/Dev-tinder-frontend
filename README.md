@@ -54,6 +54,27 @@ daisyui,
 </Routes>
 
 <NavBar />
-{/* <h1 className="text-3xl font-bold underline h-min">Hello world!</h1> */}
 <Outlet />
-{/* <Footer /> */}
+
+npm i axios
+add cors to backend
+
+option 1- no cookies
+const res = await axios.post("http://localhost:3000/login",
+        {emailID, password},
+)
+app.use(cors())
+
+need to whitelist domain name
+app.use(cors(
+  {
+    origin: 'http://localhost:5173',
+    credentials: true
+  }
+))
+CAUTION: DO NOT PUT FORWARD SLASH!
+frontend-
+{withCredentials: true}
+
+npm i @reduxjs/tookit react-redux
+redux devtools
