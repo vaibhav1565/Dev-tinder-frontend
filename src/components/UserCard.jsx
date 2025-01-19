@@ -3,7 +3,7 @@ const UserCard = ({userData, showButton = true}) => {
   return (
     <div className="card card-compact bg-base-300 w-80 shadow-xl">
       <figure>
-        <img src={photoUrl} alt="user" />
+        <img src={photoUrl} alt="user" className="w-40"/>
       </figure>
       <div className="card-body">
         <h2 className="card-title">{firstName + " " + lastName}</h2>

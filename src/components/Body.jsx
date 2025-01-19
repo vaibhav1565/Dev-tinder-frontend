@@ -1,5 +1,5 @@
 import NavBar from "./NavBar";
-import Footer from "./Footer";
+// import Footer from "./Footer";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { BASE_URL } from "../utils/constants";
@@ -37,7 +37,7 @@ const Body = () => {
       <div className="flex justify-center">
         <Outlet />
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

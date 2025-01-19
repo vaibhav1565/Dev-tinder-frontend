@@ -24,10 +24,10 @@ const Feed = () => {
   useEffect(() => {
     handleFeed();
   }, []);
+  if (!feed) return;
   return (
     <div>
-      {feed && <UserCard userData={feed[0]}/>}
-      {/* {feed && <UserCard userData={feed[1]}/>} */}
+      {feed.map((f, index) => <UserCard userData={feed[index]} key={feed[index]._id}/>)}
     </div>
   );
 };
