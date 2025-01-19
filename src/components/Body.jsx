@@ -24,7 +24,7 @@ const Body = () => {
         if (e.status === 401) {
           navigate("/login");
         }
-        console.error(e);
+        // console.error(e);
       }
   }
 

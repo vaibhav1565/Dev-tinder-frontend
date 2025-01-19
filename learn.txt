@@ -85,3 +85,5 @@ cookies remain stored
 in Body, fetch user from /profile/view
 if user, navigate to feed
 if not, navigate to login
+
+edit profile, toast feature
