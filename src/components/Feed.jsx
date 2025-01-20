@@ -25,6 +25,7 @@ const Feed = () => {
     handleFeed();
   }, []);
   if (!feed) return;
+  if (feed.length === 0) return <h1>No more users found!</h1>
   return (
     <div>
       {feed.map((f, index) => <UserCard userData={feed[index]} key={feed[index]._id}/>)}
