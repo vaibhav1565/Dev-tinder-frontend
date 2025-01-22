@@ -7,32 +7,34 @@ const Requests = () => {
   const dispatch = useDispatch();
 
   const connectionRequests = useSelector((store) => store.requests);
-  async function fetchRequests() {
-    if (connectionRequests) return;
-    try {
-      const res = await axios.get(BASE_URL + "/user/requests/received", {
-        withCredentials: true,
-      });
-      console.log(res.data.data);
-      dispatch(addRequests(res.data.data));
-    } catch (e) {
-      console.error(e);
-    }
-  }
 
   async function reviewRequest(_id, status) {
-    const res = await axios.post(
-      BASE_URL + `/request/review/${status}/${_id}`,
-      {},
-      { withCredentials: true }
-    );
-    console.log(res.data);
-    dispatch(removeRequest(_id));
+    try {
+      const res = await axios.post(
+        BASE_URL + `/request/review/${status}/${_id}`,
+        {},
+        { withCredentials: true }
+      );
+      dispatch(removeRequest(_id));
+    } catch {}
   }
+
   useEffect(() => {
+    async function fetchRequests() {
+      if (connectionRequests.length > 0) return;
+      try {
+        const res = await axios.get(BASE_URL + "/user/requests/received", {
+          withCredentials: true,
+        });
+        dispatch(addRequests(res.data.data));
+      } catch (e) {
+        if (e?.response?.data?.error != "Token is not valid") console.error(e);
+      }
+    }
     fetchRequests();
-  }, []);
-  if (!connectionRequests) return;
+  }, [dispatch, connectionRequests]);
+
+  
   if (connectionRequests.length === 0)
     return <h1>You have no connection requests!</h1>;
   return (
@@ -48,7 +50,7 @@ const Requests = () => {
             <div className="flex">
               <img src={photoUrl} alt="photo" className="w-[150px]" />
               <div>
-                <p>{firstName + " " + lastName}</p>
+                <p>{firstName + (lastName ? " " + lastName : "")}</p>
 
                 <div>
                   <button

@@ -46,12 +46,14 @@ daisyui,
 
 "/" not defined. But no error as there is some other content
 
+<BrowserRouter basename="/">
 <Routes>
   <Route path="/" element={<Body />}>
     <Route path="/login" element={<Login />} />
     <Route path="/profile" element={<Profile />} />
   </Route>
 </Routes>
+</ BrowserRouter">
 
 <NavBar />
 <Outlet />
@@ -61,11 +63,11 @@ add cors to backend
 
 option 1- no cookies
 const res = await axios.post("http://localhost:3000/login",
-        {emailID, password},
+{email, password},
 )
 app.use(cors())
 
-need to whitelist domain name
+Need to whitelist domain name for using cookies
 app.use(cors(
   {
     origin: 'http://localhost:5173',
@@ -73,6 +75,7 @@ app.use(cors(
   }
 ))
 CAUTION: DO NOT PUT FORWARD SLASH!
+
 frontend-
 {withCredentials: true}
 
@@ -87,3 +90,45 @@ if user, navigate to feed
 if not, navigate to login
 
 edit profile, toast feature
+
+Deployment
+
+- install same node version
+
+npm install
+npm run build
+sudo apt update
+sudo apt install nginx
+sudo systemctl start nginx
+sduo systemctl enable nginx
+/var/www/html
+enable port 80
+
+caution- opening with https does not work, just directly
+
+do not allow mongodb from anywhere
+npm start
+allow port
+when closing terminal, application also does not run
+
+npm install pm2 -g
+pm2 start npm -- start
+pm2 logs
+pm2 flush <name of application>
+pm2 flush npm
+
+pm2 list
+pm2 stop npm
+pm2 delete npm
+
+pm2 start npm --name "devTinder" -- start
+
+Frontend: devtinder.com
+Backend: devtinder.com:7777 -> devtinder.com/api
+
+
+config nginx - /etc/nginx/sites-available/default
+restart nginx - sudo systelctl restart nginx
+
+change server name- set to ip address/domain name
+in the code below, REMEMBER to put trailing slash after localhost

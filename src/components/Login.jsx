@@ -7,11 +7,12 @@ import { BASE_URL } from "../utils/constants";
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
 
-  const [firstName, setFirstName] = useState("Munni");
-  const [lastName, setLastName] = useState("Garg");
-  const [emailID, setEmailID] = useState("vaibhav@gmail.com");
+  const [firstName, setFirstName] = useState("Vaibhav");
+  const [lastName, setLastName] = useState("Madan");
+  const [email, setEmail] = useState("vaibhav@gmail.com");
   const [password, setPassword] = useState("Passwo3#");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,16 +21,19 @@ const Login = () => {
     try {
       const res = await axios.post(
         BASE_URL + "/login",
-        { emailID, password },
+        { email, password },
         { withCredentials: true }
       );
       if (res.status === 200) {
         setError("");
-        dispatch(addUser(res.data));
-        navigate("/feed");
+        // console.log(res.data.data);
+        dispatch(addUser(res.data.data));
+        navigate("/");
+        console.clear();
       }
     } catch (e) {
-      setError(e?.response?.data || "Something went wrong!");
+        // console.log(e.response.data);
+        setError(e.response.data.error);
     }
   }
 
@@ -37,27 +41,24 @@ const Login = () => {
     try {
       const res = await axios.post(
         BASE_URL + "/signup",
-        {firstName, lastName, emailID, password},
-        {withCredentials: true}
+        { firstName, lastName, email, password },
+        { withCredentials: true }
       );
 
       if (res.status === 200) {
         setError("");
-        dispatch(addUser(res.data));
-        navigate("/profile")
+        setMessage("User added successfully!!");
       }
-    }
-    catch (e) {
-      console.error(e);
+    } catch (e) {
+      // console.log(e.response.data); 
+      setError(e.response.data.error);
     }
   }
-  
+
   return (
-    <div
-      className="card bg-base-100 w-96 shadow-xl"
-    >
+    <div className="card bg-base-100 w-96 mt-4 shadow-xl shadow-white">
       <div className="card-body">
-        <h2 className="card-title">{isLogin ? "Login" : "Signup"} Form</h2>
+        <h2 className="text-center text-2xl">{isLogin ? "Login" : "Signup"}</h2>
         {!isLogin && (
           <>
             <input
@@ -66,19 +67,21 @@ const Login = () => {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
+
             <input
               className="input input-bordered"
               placeholder="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
+
           </>
         )}
         <input
           className="input input-bordered"
           placeholder="Email"
-          value={emailID}
-          onChange={(e) => setEmailID(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           className="input input-bordered"
@@ -86,16 +89,20 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500 text-center">{error}</p>
+        <p className="text-center">{message}</p>
         <div className="card-actions justify-end">
-          <button className="btn btn-primary my-0 mx-auto"
-          onClick={()=>{
-            isLogin ? handleLogin() : handleSignup()
-          }}>
+          <button
+            className="btn btn-primary my-0 mx-auto"
+            onClick={isLogin ? handleLogin : handleSignup}
+          >
             {isLogin ? "Login" : "Signup"}
           </button>
         </div>
-        <p className="cursor-pointer text-center" onClick={() => setIsLogin((v) => !v)}>
+        <p
+          className="cursor-pointer text-center underline"
+          onClick={() => {setIsLogin(value => !value); setError("")}}
+        >
           {isLogin
             ? "New to devTinder? Sign up"
             : "Already have an account? Login"}

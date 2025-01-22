@@ -1,43 +1,52 @@
 import NavBar from "./NavBar";
-// import Footer from "./Footer";
-import { Outlet, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { BASE_URL } from "../utils/constants";
+import Footer from "./Footer";
+
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
+import { useEffect } from "react";
+
+import { BASE_URL } from "../utils/constants";
 import {addUser} from "../utils/userSlice";
+
 import axios from "axios";
 
 const Body = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const user = useSelector((store) => store.user);
-  async function fetchUser() {
-      if (user) return;
-      try {
-        const res = await axios.get(BASE_URL + "/profile/view",
-          {withCredentials: true}
-        );
-        dispatch(addUser(res.data));
-      }
-      catch (e) {
-        if (e.status === 401) {
-          navigate("/login");
-        }
-        // console.error(e);
-      }
-  }
 
   useEffect(()=>{
+      async function fetchUser() {
+        if (user.data) {
+          if (location.pathname === "/login") navigate("/");
+          return;
+        }
+
+        try {
+          const res = await axios.get(BASE_URL + "/profile/view", {
+            withCredentials: true,
+          });
+          dispatch(addUser(res.data.data));
+        } 
+        catch(e) {
+          if (e?.response?.data?.error === "Token is not valid") {
+            if (location.pathname !== "/login") navigate("/login");
+          }
+        }
+      }
     fetchUser();
-  },[])
+  },[dispatch, navigate, location, user])
+
   return (
     <div className="h-screen">
       <NavBar />
       <div className="flex justify-center">
         <Outlet />
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 };

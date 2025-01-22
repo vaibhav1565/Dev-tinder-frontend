@@ -4,13 +4,16 @@ import { BASE_URL } from "../utils/constants";
 import axios from "axios";
 
 import {removeUser} from "../utils/userSlice"
-import { removeFeed } from "../utils/feedSlice";
+import { removeAllFeed } from "../utils/feedSlice";
+import { removeAllRequests } from "../utils/requestsSlice";
+import { removeAllConnections } from "../utils/connectionsSlice";
 
 const NavBar = () => {
   const user = useSelector(store => store.user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   async function handleLogout () {
     try {
       const res = await axios.post(BASE_URL + "/logout", 
@@ -19,7 +22,9 @@ const NavBar = () => {
       );
       if (res.status === 200) {
         dispatch(removeUser());
-        dispatch(removeFeed());
+        dispatch(removeAllConnections());
+        dispatch(removeAllFeed());
+        dispatch(removeAllRequests());
         navigate("/login");
       }
     }
@@ -27,16 +32,19 @@ const NavBar = () => {
       console.log(e);
     }
   }
+
   return (
     <div className="navbar bg-accent h-min">
       <div className="flex-1">
-        <Link to="/" className="btn btn-ghost text-xl text-primary-content">devTinder</Link>
+        <Link to="/" className="text-black text-2xl">
+          Dev Tinder
+        </Link>
       </div>
-      <div className="flex-none gap-2">
-        {user && (
+      {user?.data && (
+        <div className="flex-none gap-2">
           <div className="dropdown dropdown-end">
             <span className="text-primary-content">
-              Welcome, {user.firstName}
+              Welcome, {user.data.firstName}
             </span>
             <div
               tabIndex={0}
@@ -44,7 +52,7 @@ const NavBar = () => {
               className="btn btn-ghost btn-circle avatar"
             >
               <div className="w-10 rounded-full">
-                <img alt="" src={user.photoUrl} />
+                <img alt="" src={user.data?.photoUrl} />
               </div>
             </div>
             <ul
@@ -57,27 +65,26 @@ const NavBar = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/feed" className="justify-between">
+                <Link to="/" className="justify-between">
                   Feed
                 </Link>
               </li>
               <li>
-                <Link to="/connections">
-                Connections
-                </Link>
+                <Link to="/connections">Connections</Link>
               </li>
               <li>
-                <Link to="/requests">
-                Requests
-                </Link>
+                <Link to="/requests">Requests</Link>
               </li>
               <li>
-                <a onClick={handleLogout}>Logout</a>
+                <Link to="/password">Update password</Link>
+              </li>
+              <li>
+                <Link onClick={handleLogout}>Logout</Link>
               </li>
             </ul>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

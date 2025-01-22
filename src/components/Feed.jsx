@@ -10,25 +10,35 @@ const Feed = () => {
 
   const dispatch = useDispatch();
 
-  async function handleFeed() {
-    if (feed) return;
-    try {
-      const res = await axios.get(BASE_URL + "/feed", 
-        {withCredentials: true}
-      );
-      dispatch(addFeed(res.data.data));
-    } catch (e) {
-      console.error(e);
-    }
-  }
   useEffect(() => {
+    async function handleFeed() {
+      if (feed.length > 0) return;
+      try {
+        const res = await axios.get(BASE_URL + "/feed", {
+          withCredentials: true,
+        });
+        dispatch(addFeed(res.data.data));
+      } catch (e) {
+        if (e?.response?.data?.error != "Token is not valid")
+          console.error(e);
+      }
+    }
     handleFeed();
-  }, []);
-  if (!feed) return;
-  if (feed.length === 0) return <h1>No more users found!</h1>
+  }, [dispatch, feed.length]);
+  if (feed.length === 0)
+    return (
+      <div className="text-center my-4">
+        <h1 className="text-3xl">Feed</h1>
+        <h2 className="text-lg">No more users found!</h2>
+      </div>
+    );
   return (
     <div>
-      {feed.map((f, index) => <UserCard userData={feed[index]} key={feed[index]._id}/>)}
+      <h1 className="text-3xl text-center my-4">Feed</h1>
+      {/* {feed.map((f, index) => (
+        <UserCard userData={feed[index]} key={feed[index]._id} />
+      ))} */}
+      <UserCard userData={feed[0]} />
     </div>
   );
 };

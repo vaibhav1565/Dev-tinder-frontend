@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import UserCard from "./UserCard";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
@@ -6,20 +6,24 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 
 const EditProfile = ({ user }) => {
-  console.log(user);
-  const [firstName, setFirstName] = useState(user.firstName);
-  const [lastName, setLastName] = useState(user.lastName);
-  const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
-  const [age, setAge] = useState(user.age);
-  //   const [gender, setGender] = useState(user.gender);
-  const [about, setAbout] = useState(user.about);
+  const [firstName, setFirstName] = useState(user.data.firstName);
+  const [lastName, setLastName] = useState(user.data?.lastName);
+  const [photoUrl, setPhotoUrl] = useState(user.data?.photoUrl);
+  const [age, setAge] = useState(user.data?.age);
+  const [gender, setGender] = useState(user.data?.gender);
+  const [about, setAbout] = useState(user.data?.about);
   const [error, setError] = useState("");
+
+  const [skills, setSkills] = useState(user.data?.skills || []);
+  const skill = useRef(null);
+  const [skillError, setSkillError] = useState(null);
 
   const dispatch = useDispatch();
   const [showToast, setShowToast] = useState(false);
 
   const saveProfile = async () => {
     setError("");
+    setSkillError("");
     try {
       const res = await axios.patch(
         BASE_URL + "/profile/edit",
@@ -28,20 +32,40 @@ const EditProfile = ({ user }) => {
           lastName,
           photoUrl,
           age,
-          //   gender,
+          gender,
           about,
+          skills,
         },
         { withCredentials: true }
       );
-      dispatch(addUser(res?.data?.data));
+      dispatch(addUser(res.data.data));
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
       }, 3000);
-    } catch (err) {
-      setError(err.response.data);
+    } catch (e) {
+      setError(e?.response?.data?.error || "Something went wrong.");
     }
   };
+
+  function addSkill() {
+    const value = skill.current.value;
+
+    if (value.length === 0 || value.length > 25) setSkillError("Skill must be of 1-25 characters");
+    else if (skills.includes(value))  setSkillError("Skills must be unique");
+    else if (skills.length == 25) setSkillError("You cannot put more than 25 skills");
+    else {
+      setSkillError(null)
+      setSkills(skills.concat(value));
+      skill.current.value = "";
+    }
+  }
+
+  function deleteSkill(index) {
+    setSkillError("");
+    const tempSkills = [...skills.slice(0, index), ...skills.slice(index + 1)];
+    setSkills(tempSkills);
+  }
 
   return (
     <>
@@ -51,7 +75,6 @@ const EditProfile = ({ user }) => {
             <div className="card-body">
               <h2 className="card-title justify-center">Edit Profile</h2>
               <div>
-                
                 <label className="form-control w-full max-w-xs my-2">
                   <div className="label">
                     <span className="label-text">First Name:</span>
@@ -64,17 +87,17 @@ const EditProfile = ({ user }) => {
                   />
                 </label>
 
-                  <label className="form-control w-full max-w-xs my-2">
-                    <div className="label">
-                      <span className="label-text">Last Name:</span>
-                    </div>
-                    <input
-                      type="text"
-                      value={lastName}
-                      className="input input-bordered w-full max-w-xs"
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </label>
+                <label className="form-control w-full max-w-xs my-2">
+                  <div className="label">
+                    <span className="label-text">Last Name:</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={lastName}
+                    className="input input-bordered w-full max-w-xs"
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </label>
 
                 <label className="form-control w-full max-w-xs my-2">
                   <div className="label">
@@ -93,17 +116,28 @@ const EditProfile = ({ user }) => {
                     <span className="label-text">Age:</span>
                   </div>
                   <input
-                    type="text"
-                    value={age}
+                    type="number"
                     className="input input-bordered w-full max-w-xs"
-                    onChange={(e) => setAge(e.target.value)}
+                    value={age || ""}
+                    onChange={(e) => setAge(Number(e.target.value) || "")}
                   />
                 </label>
-                {/* <label className="form-control w-full max-w-xs my-2">
+
+                <label className="form-control w-full max-w-xs my-2">
                   <div className="label">
                     <span className="label-text">Gender:</span>
                   </div>
-                </label> */}
+
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="p-2"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
 
                 <label className="form-control w-full max-w-xs my-2">
                   <div className="label">
@@ -116,6 +150,34 @@ const EditProfile = ({ user }) => {
                     onChange={(e) => setAbout(e.target.value)}
                   />
                 </label>
+
+                <div>
+                  <span className="label-text">Skills:</span>
+                  <input
+                    type="text"
+                    ref={skill}
+                    className="input input-bordered w-full max-w-xs"
+                  />
+                  <button className="btn btn-primary" onClick={addSkill}>
+                    Add skill
+                  </button>
+                  <p className="text-red-500">{skillError}</p>
+                  <p>(Click on ❌ to remove a skill)</p>
+                  <div className="label">
+                    <ul>
+                      {skills.map((skill, i) => (
+                        <React.Fragment key={skill}>
+                          <li>
+                            {skill}
+                            {" "}
+                            {" "}
+                            <button onClick={() => deleteSkill(i)}>❌</button>
+                          </li>
+                        </React.Fragment>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
               <p className="text-red-500">{error}</p>
               <div className="card-actions justify-center m-2">
