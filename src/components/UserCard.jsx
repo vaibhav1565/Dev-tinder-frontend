@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
@@ -10,12 +11,14 @@ const UserCard = ({ userData, showButton = true }) => {
     : userData.data;
 
   const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
+  
   async function handleSend(status, _id) {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await axios.post(
+      await axios.post(
         BASE_URL + `/request/send/${status}/${_id}`,
         {},
         { withCredentials: true }

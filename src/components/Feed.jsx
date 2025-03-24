@@ -11,19 +11,28 @@ const Feed = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     async function handleFeed() {
       if (feed.length > 0) return;
       try {
         const res = await axios.get(BASE_URL + "/feed", {
           withCredentials: true,
+          signal
         });
         dispatch(addFeed(res.data.data));
       } catch (e) {
-        if (e?.response?.data?.error != "Token is not valid")
-          console.error(e);
+        if (e.code !== "ERR_CANCELED" && e.code !== "ECONNABORTED") {
+          console.log(e);
+        }
       }
     }
     handleFeed();
+
+    return ()=> {
+      controller.abort();
+    }
   }, [dispatch, feed.length]);
   if (feed.length === 0)
     return (

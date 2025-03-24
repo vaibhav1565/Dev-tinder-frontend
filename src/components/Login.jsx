@@ -17,7 +17,8 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  async function handleLogin() {
+  async function handleLogin(e) {
+    e.preventDefault();
     try {
       const res = await axios.post(
         BASE_URL + "/login",
@@ -26,18 +27,18 @@ const Login = () => {
       );
       if (res.status === 200) {
         setError("");
-        // console.log(res.data.data);
         dispatch(addUser(res.data.data));
         navigate("/");
         console.clear();
       }
     } catch (e) {
-        // console.log(e.response.data);
-        setError(e.response.data.error);
+      console.log(e);
+      setError(e?.response?.data?.error);
     }
   }
 
-  async function handleSignup() {
+  async function handleSignup(e) {
+    e.preventDefault();
     try {
       const res = await axios.post(
         BASE_URL + "/signup",
@@ -50,14 +51,17 @@ const Login = () => {
         setMessage("User added successfully!!");
       }
     } catch (e) {
-      // console.log(e.response.data); 
-      setError(e.response.data.error);
+      console.log(e);
+      setError(e?.response?.data?.error);
     }
   }
 
   return (
     <div className="card bg-base-100 w-96 mt-4 shadow-xl shadow-white">
-      <div className="card-body">
+      <form
+        className="card-body"
+        onSubmit={isLogin ? handleLogin : handleSignup}
+      >
         <h2 className="text-center text-2xl">{isLogin ? "Login" : "Signup"}</h2>
         {!isLogin && (
           <>
@@ -74,7 +78,6 @@ const Login = () => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
-
           </>
         )}
         <input
@@ -101,13 +104,16 @@ const Login = () => {
         </div>
         <p
           className="cursor-pointer text-center underline"
-          onClick={() => {setIsLogin(value => !value); setError("")}}
+          onClick={() => {
+            setIsLogin((value) => !value);
+            setError("");
+          }}
         >
           {isLogin
             ? "New to devTinder? Sign up"
             : "Already have an account? Login"}
         </p>
-      </div>
+      </form>
     </div>
   );
 };

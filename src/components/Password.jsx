@@ -8,10 +8,10 @@ const Password = () => {
   const [verifyPassword, setVerifyPassword] = useState("");
 
   const [error, setError] = useState("");
-
   const [showToast, setShowToast] = useState(false);
 
-  const updatePassword = async () => {
+  const updatePassword = async (e) => {
+    e.preventDefault();
     if (newPassword.length > 100 || newPassword.length < 8  ) {
         setError("Password length must be 8-100 characters.");
     }
@@ -21,7 +21,7 @@ const Password = () => {
     else {
         setError("");
         try {
-          const res = await axios.patch(
+          await axios.patch(
             BASE_URL + "/profile/password",
             {
               oldPassword,
@@ -45,7 +45,7 @@ const Password = () => {
       <div className="flex justify-center my-10">
         <div className="flex justify-center mx-10">
           <div className="card bg-base-300 w-96 shadow-xl">
-            <div className="card-body">
+            <form className="card-body" onSubmit={updatePassword}>
               <h2 className="card-title justify-center">Edit Password</h2>
               <div>
                 
@@ -88,11 +88,11 @@ const Password = () => {
               </div>
               <p className="text-red-500">{error}</p>
               <div className="card-actions justify-center m-2">
-                <button className="btn btn-primary" onClick={updatePassword}>
+                <button className="btn btn-primary">
                   Update password
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

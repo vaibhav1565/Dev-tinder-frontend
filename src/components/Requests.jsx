@@ -10,31 +10,42 @@ const Requests = () => {
 
   async function reviewRequest(_id, status) {
     try {
-      const res = await axios.post(
+      await axios.post(
         BASE_URL + `/request/review/${status}/${_id}`,
         {},
         { withCredentials: true }
       );
       dispatch(removeRequest(_id));
-    } catch {}
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     async function fetchRequests() {
       if (connectionRequests.length > 0) return;
       try {
         const res = await axios.get(BASE_URL + "/user/requests/received", {
           withCredentials: true,
+          signal,
         });
         dispatch(addRequests(res.data.data));
       } catch (e) {
-        if (e?.response?.data?.error != "Token is not valid") console.error(e);
+        if (e.code !== "ERR_CANCELED" && e.code !== "ECONNABORTED") {
+          console.log(e);
+        }
       }
     }
     fetchRequests();
-  }, [dispatch, connectionRequests]);
 
-  
+    return () => {
+      controller.abort();
+    };
+  }, [dispatch, connectionRequests.length]);
+
   if (connectionRequests.length === 0)
     return <h1>You have no connection requests!</h1>;
   return (

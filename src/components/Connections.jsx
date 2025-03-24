@@ -10,22 +10,32 @@ const Connections = () => {
   const dispatch = useDispatch();
   const connections = useSelector(store => store.connections)
 
-  useEffect(()=>{
-      async function fetchConnections() {
-        if (connections.length > 0) return;
-        try {
-          const res = await axios.get(BASE_URL + "/user/connections", 
-          {
-            withCredentials: true,
-          });
-          // console.log(res.data.data);
-          dispatch(addConnections(res.data.data));
-        } catch (e) {
-          if (e?.response?.data?.error !== "Token is not valid") console.error(e);
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    async function fetchConnections() {
+      if (connections.length > 0) return;
+
+      try {
+        const res = await axios.get(`${BASE_URL}/user/connections`, {
+          withCredentials: true,
+          signal, // Pass the signal to axios
+        });
+        dispatch(addConnections(res.data.data));
+      } catch (e) {
+        if (e.code !== "ERR_CANCELED" && e.code !== "ECONNABORTED") {
+          console.log(e);
         }
       }
+    }
+
     fetchConnections();
-  },[dispatch, connections.length])
+
+    return () => {
+      controller.abort(); // Cancel request if component unmounts or re-renders
+    };
+  }, [dispatch, connections.length]);
   
   if (connections.length === 0) return <h1>You have no connections!</h1>
   return (

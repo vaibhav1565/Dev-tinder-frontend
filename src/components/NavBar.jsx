@@ -34,7 +34,7 @@ const NavBar = () => {
   }
 
   return (
-    <div className="navbar bg-accent h-min">
+    <nav className="navbar bg-accent h-min">
       <div className="flex-1">
         <Link to="/" className="text-black text-2xl">
           Dev Tinder
@@ -85,7 +85,7 @@ const NavBar = () => {
           </div>
         </div>
       )}
-    </div>
+    </nav>
   );
 }
 
